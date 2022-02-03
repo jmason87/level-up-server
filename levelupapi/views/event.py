@@ -1,9 +1,12 @@
 """View module for handling requests about game types"""
+from xml.dom import ValidationErr
+from django.forms import ValidationError
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Event
+from levelupapi.models import Event, Game, Gamer
+
 
 
 class EventView(ViewSet):
@@ -17,7 +20,7 @@ class EventView(ViewSet):
         """
         try:
             event = Event.objects.get(pk=pk)
-            serializer = GameTypeSerializer(event)
+            serializer = EventSerializer(event)
             return Response(serializer.data)
         except Event.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)   
@@ -32,12 +35,40 @@ class EventView(ViewSet):
         game = request.query_params.get('game', None)
         if game is not None:
             events = events.filter(game_id=game)
-        serializer = GameTypeSerializer(events, many=True)
+        serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
     
-class GameTypeSerializer(serializers.ModelSerializer):
+    def create(self, request):
+        # game = Game.objects.get(pk=request.data["game"])
+        organizer = Gamer.objects.get(user=request.auth.user)
+        
+        # event = Event.objects.create(
+        #     description=request.data["description"],
+        #     date=request.data["date"],
+        #     time=request.data["time"],
+        #     game=game,
+        #     organizer=organizer
+        # )
+        try:
+            serializer = CreateEventSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(organizer=organizer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+    
+class EventSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
     """
     class Meta:
         model = Event
-        fields = ('id', 'description', 'date', 'time', 'game_id', 'organizer_id')
+        fields = ('id', 'description', 'date', 'time', 'game', 'organizer')
+        depth = 1
+        
+class CreateEventSerializer(serializers.ModelSerializer):
+    """JSON serializer for game types
+    """
+    class Meta:
+        model = Event
+        fields = ('id', 'description', 'date', 'time', 'game')
+        
