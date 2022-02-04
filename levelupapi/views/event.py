@@ -56,6 +56,23 @@ class EventView(ViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk):
+        """Handle PUT requests for a game
+
+        Returns:
+            Response -- Empty body with 204 status code
+        """
+        try:
+            event = Event.objects.get(pk=pk)
+            serializer = CreateEventSerializer(event, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+        except ValidationError as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+
+
     
 class EventSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
