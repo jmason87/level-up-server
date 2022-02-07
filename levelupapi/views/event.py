@@ -5,7 +5,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Event, Game, Gamer
+from levelupapi.models import Event, Game, Gamer, event
 
 
 
@@ -73,8 +73,8 @@ class EventView(ViewSet):
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk):
-        game = Event.objects.get(pk=pk)
-        game.delete()
+        event = Event.objects.get(pk=pk)
+        event.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     

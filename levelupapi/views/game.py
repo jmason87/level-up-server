@@ -39,16 +39,6 @@ class GameView(ViewSet):
             Response -- JSON serialized game instance
         """
         gamer = Gamer.objects.get(user=request.auth.user)
-        # game_type = Game_Type.objects.get(pk=request.data["game_type"])
-
-        # game = Game.objects.create(
-        #     title=request.data["title"],
-        #     maker=request.data["maker"],
-        #     number_of_players=request.data["number_of_players"],
-        #     skill_level=request.data["skill_level"],
-        #     gamer=gamer,
-        #     game_type=game_type
-        # )
         try:
             serializer = CreateGameSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
