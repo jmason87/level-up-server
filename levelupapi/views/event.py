@@ -47,13 +47,6 @@ class EventView(ViewSet):
         # game = Game.objects.get(pk=request.data["game"])
         organizer = Gamer.objects.get(user=request.auth.user)
         
-        # event = Event.objects.create(
-        #     description=request.data["description"],
-        #     date=request.data["date"],
-        #     time=request.data["time"],
-        #     game=game,
-        #     organizer=organizer
-        # )
         try:
             serializer = CreateEventSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
