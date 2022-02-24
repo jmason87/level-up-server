@@ -4,10 +4,12 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from levelupapi.models import Game, Gamer, Game_Type
+from rest_framework.permissions import DjangoModelPermissions
 
 class GameView(ViewSet):
+    permission_classes = [ DjangoModelPermissions ]
+    queryset = Game.objects.none()
     """ Level Up game view"""
-    
     def retrieve(self, request, pk):
         """handels get requests for single game
         Returns:
